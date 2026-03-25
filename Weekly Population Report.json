@@ -31,14 +31,14 @@
           "value": "14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps",
           "mode": "list",
           "cachedResultName": "US Population Pipeline",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit?usp=drivesdk"
+          "cachedResultUrl": [google-sheet-link-here]
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit#gid=0"
+          "cachedResultUrl": [google-sheet-link-here]
         },
         "options": {}
       },
@@ -73,7 +73,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kvjunk23@gmail.com",
+        "sendTo": [recipient-email-here]
         "subject": "=Weekly US Population Report - {{ $now.format('yyyy-MM-dd') }}",
         "emailType": "text",
         "message": "={{ $json.report }}",
