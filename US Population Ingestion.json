@@ -1,0 +1,245 @@
+{
+  "name": "US Population Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "480d8f49-4da1-4805-9fa0-f9797bc87243",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.census.gov/data/2022/acs/acs1?get=NAME,B01003_001E&for=state:*",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        336,
+        0
+      ],
+      "id": "f31a1a37-b604-4087-abc8-af452c3998fc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps",
+          "mode": "list",
+          "cachedResultName": "US Population Pipeline",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "state_name",
+              "displayName": "state_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "population",
+              "displayName": "population",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state_code",
+              "displayName": "state_code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "9b64dda3-79fe-46c1-ac96-a866b8ef8086",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GFFP01JgjDtk4qnp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3d1e5dbf-78dc-41a3-b59c-cde23ba081fa",
+              "leftValue": "={{ $json.population }}",
+              "rightValue": 500000,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        0
+      ],
+      "id": "23c84fdc-cf1c-4ec8-b4e1-1ed311a12d1f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "kvjunk23@gmail.com",
+        "subject": "=Population data alert: {{ $json.state_name }}",
+        "emailType": "text",
+        "message": "=Hi Katie, \n\nAn unusual population value was detected in your pipeline: \n\nState: {{ $json.state_name }}\nPopulation: {{ $json.population }}\nState code: {{ $json.state_code }}\n\nPlease review the data in your google sheet",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -192
+      ],
+      "id": "4781010c-3fee-43b9-9759-df4ee9df9804",
+      "name": "Send a message",
+      "webhookId": "6f3937ab-731e-49d8-8d8e-8f0b507dcdfe",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QCAyIwYoyg5jXIZc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst today = new Date().toISOString().split('T')[0];\n\nconst headers = items[0].json;\nconst rows = items.slice(1);\n\nreturn rows.map(row => ({\n  json: {\n    state_name: row.json[0],\n    population: parseInt(row.json[1]),\n    state_code: row.json[2],\n    date: today\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "57e4998e-ebe3-431b-ad1d-5489c9a639a2",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f806a259-d596-4c79-8834-9b71d680d6cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e186cf5f875be6004e003ddc62ca54e3b23f39b7277428e183bd881dba93d987"
+  },
+  "id": "t6eY6ZT8ceQtlu2l",
+  "tags": []
+}

@@ -1,0 +1,172 @@
+{
+  "name": "Weekly Population Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "99831d4a-3b10-4878-8495-3afbec637226",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps",
+          "mode": "list",
+          "cachedResultName": "US Population Pipeline",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "fb538199-b821-4c0e-9c3f-b98691abd807",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GFFP01JgjDtk4qnp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "latest = {}\nfor item in _items:\n    item[\"json\"].pop(\"row_number\", None)\n    data = item[\"json\"]\n    state = data.get(\"state_name\")\n    if state:\n        latest[state] = data\n\nsorted_states = sorted(latest.values(), key=lambda x: int(x[\"population\"]), reverse=True)\n\nreturn [{\"json\": row} for row in sorted_states]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "36b77d48-2086-4090-a7a9-a1274fa547d2",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "sendTo": "kvjunk23@gmail.com",
+        "subject": "=Weekly US Population Report - {{ $now.format('yyyy-MM-dd') }}",
+        "emailType": "text",
+        "message": "={{ $json.report }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "b8926282-d1f8-4f46-ba80-184b2f3831be",
+      "name": "Send a message",
+      "webhookId": "db2d400f-cff0-4ff7-8e3c-192a20f3ced6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QCAyIwYoyg5jXIZc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "rows = [item[\"json\"] for item in _items]\n\nlines = []\nfor row in rows:\n    lines.append(f\"{row['state_name']}: {int(row['population']):,}\")\n\nreport = \"\\n\".join(lines)\n\nreturn [{\"json\": {\"report\": report, \"date\": rows[0][\"date\"]}}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b40f4307-d6f2-4e91-9486-4ea5d8bc07ad",
+      "name": "Code in Python1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "Code in Python1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d45cb864-2ad2-46a2-bd2e-47007f12052d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e186cf5f875be6004e003ddc62ca54e3b23f39b7277428e183bd881dba93d987"
+  },
+  "id": "HHCHTW3DV6lxNp80",
+  "tags": []
+}
