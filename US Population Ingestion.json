@@ -42,14 +42,14 @@
           "value": "14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps",
           "mode": "list",
           "cachedResultName": "US Population Pipeline",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit?usp=drivesdk"
+          "cachedResultUrl": [google-doc-link-here]
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14lUlGnrSZd2nIJf1C-LPBSlJ4WnUcmtq8sy7HlmX6Ps/edit#gid=0"
+          "cachedResultUrl": [google-doc-link-here]
         },
         "columns": {
           "mappingMode": "autoMapInputData",
@@ -139,7 +139,7 @@
     },
     {
       "parameters": {
-        "sendTo": "kvjunk23@gmail.com",
+        "sendTo": [recieving-email-here],
         "subject": "=Population data alert: {{ $json.state_name }}",
         "emailType": "text",
         "message": "=Hi Katie, \n\nAn unusual population value was detected in your pipeline: \n\nState: {{ $json.state_name }}\nPopulation: {{ $json.population }}\nState code: {{ $json.state_code }}\n\nPlease review the data in your google sheet",
