@@ -1,4 +1,4 @@
-# Basic-N8N-Workflow
+# Basic n8n Workflow
 
 Learning the basics of workflow automation with N8N. This project has two workflows that work together, triggering automatically without the need for manual intervention. 
 
